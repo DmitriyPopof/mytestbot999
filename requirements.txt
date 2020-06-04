@@ -17,4 +17,3 @@ pytz==2020.1
 six==1.15.0
 verboselogs==1.7
 yarl==1.4.2
-
