@@ -7,6 +7,7 @@ import pyowm
 from time import sleep
 import sys
 
+
 async def send_to_admin(*args):
     await bot.send_message(chat_id=admin_id, text="I'm started!")
 
@@ -43,23 +44,20 @@ async def get_location(call):
         message1.text = call.location
         global owm
         mgr = owm.weather_manager()
-        obs = mgr.weather_at_coords(call.location.latitude, call.location.longitude) # Create a weather observation
+        obs = mgr.weather_at_coords(call.location.latitude, call.location.longitude)  # Create a weather observation
         w = obs.weather
         l = obs.location
-        #f = l.forecast
-        print(w) # <Weather - reference time=2013-12-18 09:20, status=Clouds>
-        print(l.name, l.country)
+        # f = l.forecast
         placename = str(l.name)
         country = str(l.country)
         d_stat = str(w.detailed_status)
-        print(d_stat)
-       # l = obs.get_location()  # create a location related to our already created weather object And send the parameters
-        #status = str(obs.)
-
-        #wtime = str(w.reference_time) #(timeformat='iso')
+        # wtime = str(w.reference_time) #(timeformat='iso')
+        wind = str(w.wind)
+        pressure = str(w.pressure)
         temperature = str(w.temperature('celsius').get('temp'))
-        await message1.answer('Сейчас погода в ' + placename +',' + country + ': ' + d_stat +', температура= ' + temperature + '°C')
+        print(l.name, l.country, wind, pressure, d_stat, temperature)
+        await message1.answer(
+            'Сейчас погода в ' + placename + ',' + country + ': ' + d_stat + ', температура= ' + temperature + '°C' +
+            ',ветер:' + wind + ',давление:' + pressure)
     else:
         await message1.answer('Ты лох!')
-
-
