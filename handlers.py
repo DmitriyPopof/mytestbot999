@@ -28,7 +28,7 @@ message1: types.Message
 async def get_weather(message: types.Message):
     global message1
     message1 = message
-    if message.text == 'Погода':
+    if message.text == 'Погода' or 'погода':
         await message.answer('Пришли свою геопозицию')
         message1.text = '1'
     else:
@@ -45,19 +45,29 @@ async def get_location(call):
         global owm
         mgr = owm.weather_manager()
         obs = mgr.weather_at_coords(call.location.latitude, call.location.longitude)  # Create a weather observation
+        forc = mgr.forecast_at_coords(call.location.latitude, call.location.longitude, '3h')
         w = obs.weather
+        f = forc.forecast
         l = obs.location
-        # f = l.forecast
         placename = str(l.name)
         country = str(l.country)
         d_stat = str(w.detailed_status)
-        # wtime = str(w.reference_time) #(timeformat='iso')
-        wind = str(w.wind)
-        pressure = str(w.pressure)
+        ref_time = str(w.reference_time('date'))
+        wind = str(w.wnd.get('speed'))
+        srise_time = str(w.sunrise_time('iso'))
+        sset_time = str(w.sunset_time('iso'))
+        pressure = str(w.pressure.get('press'))
         temperature = str(w.temperature('celsius').get('temp'))
+        t_feels = str(w.temperature('celsius').get('feels_like'))
+        rain = str(w.rain.get('_len_'))
+        snow = str(w.snow.get('_len_'))
+        forcast_d_stat = str(f.weathers.get(index))
         print(l.name, l.country, wind, pressure, d_stat, temperature)
+
         await message1.answer(
-            'Сейчас погода в ' + placename + ',' + country + ': ' + d_stat + ', температура= ' + temperature + '°C' +
-            ',ветер:' + wind + ',давление:' + pressure)
+            'Сейчас (' + ref_time + ') \nпогода в ' + placename + ',' + country + ': \n' + d_stat + ', температура: ' +
+            temperature + '°C,\n' + 'чувствуется как: '+t_feels + '°C'+', \nветер: ' + wind + 'м/с' + ', \nдавление: '
+            + pressure + 'мм.рт.ст.\nРассвет: ' + srise_time + '.\nЗакат: ' + sset_time + '\nБлижайшие 3 часа: ' +
+            forcast_d_stat)
     else:
-        await message1.answer('Ты лох!')
+        await message1.reply('Это не геолокация!')
