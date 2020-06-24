@@ -8,7 +8,7 @@ from pyowm.utils.config import get_default_config
 
 loop = asyncio.get_event_loop()
 
-bot = Bot (BOT_TOKEN,parse_mode="HTML")
+bot = Bot(BOT_TOKEN, parse_mode='HTML')
 dp = Dispatcher(bot, loop=loop)
 
 config_dict = get_default_config()

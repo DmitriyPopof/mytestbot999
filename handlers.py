@@ -7,6 +7,7 @@ import pyowm
 from time import sleep
 import sys
 
+
 async def send_to_admin(*args):
     await bot.send_message(chat_id=admin_id, text="I'm started!")
 
@@ -27,7 +28,7 @@ message1: types.Message
 async def get_weather(message: types.Message):
     global message1
     message1 = message
-    if message.text == 'Погода':
+    if message.text == 'Погода' or 'погода':
         await message.answer('Пришли свою геопозицию')
         message1.text = '1'
     else:
@@ -43,23 +44,42 @@ async def get_location(call):
         message1.text = call.location
         global owm
         mgr = owm.weather_manager()
-        obs = mgr.weather_at_coords(call.location.latitude, call.location.longitude) # Create a weather observation
+        obs = mgr.weather_at_coords(call.location.latitude, call.location.longitude)  # Create a weather observation
+        forc = mgr.forecast_at_coords(call.location.latitude, call.location.longitude, '3h')
         w = obs.weather
+        f = forc.forecast.weathers[0]
         l = obs.location
-        #f = l.forecast
-        print(w) # <Weather - reference time=2013-12-18 09:20, status=Clouds>
-        print(l.name, l.country)
+        # location
         placename = str(l.name)
         country = str(l.country)
+        # weather
         d_stat = str(w.detailed_status)
-        print(d_stat)
-       # l = obs.get_location()  # create a location related to our already created weather object And send the parameters
-        #status = str(obs.)
-
-        #wtime = str(w.reference_time) #(timeformat='iso')
+        ref_time = str(w.reference_time('date'))
+        wind = str(w.wnd.get('speed'))
+        srise_time = str(w.sunrise_time('iso'))
+        sset_time = str(w.sunset_time('iso'))
+        pressure = str(w.pressure.get('press'))
         temperature = str(w.temperature('celsius').get('temp'))
-        await message1.answer('Сейчас погода в ' + placename +',' + country + ': ' + d_stat +', температура= ' + temperature + '°C')
+        t_feels = str(w.temperature('celsius').get('feels_like'))
+        weather_icon_name = w.weather_icon_name
+        rain = str(w.rain.get('_len_'))
+        snow = str(w.snow.get('_len_'))
+        # forecast
+        f_d_stat = str(f.detailed_status)
+        f_temperature = str(f.temperature('celsius').get('temp'))
+        f_t_feels = str(f.temperature('celsius').get('feels_like'))
+        f_wind = str(f.wnd.get('speed'))
+        f_weather_icon_name = str(f.weather_icon_name)
+
+        print(f_d_stat, f_temperature, f_t_feels, f_weather_icon_name, weather_icon_name)
+        print(l.name, l.country, wind, pressure, d_stat, temperature)
+
+        await message1.answer(
+            'Сейчас (' + ref_time + ') \nпогода в ' + placename + ',' + country + ': \n' + d_stat + ', температура: ' +
+            temperature + '°C,\n' + 'чувствуется как: ' + t_feels + '°C' + ', \nветер: ' + wind + 'м/с' +
+            ', \nдавление: '
+            + pressure + 'мм.рт.ст.\nРассвет: ' + srise_time + '.\nЗакат: ' + sset_time +
+            '\n\nБлижайшие 3 часа: \n' + f_d_stat + ',\n температура: ' + f_temperature + '°C,' + '\nчувствуется как: '
+            + f_t_feels + '°C' + ', \nветер: ' + f_wind + 'м/с')
     else:
-        await message1.answer('Ты лох!')
-
-
+        await message1.reply('Это не геолокация!')
